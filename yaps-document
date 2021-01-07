@@ -1,19 +1,18 @@
-rm /bin/sh
+
 sudo rm /bin/sh
 sudo ln -s /bin/bash /bin/sh
 sudo apt-get install bison -y
 sudo apt-get install gawk -y
 sudo rm /usr/bin/awk 
 sudo ln -s /usr/bin/gawk /usr/bin/awk
-sudo apt-get install gcc g++ make
+sudo apt-get install gcc g++ make -y
 sudo apt-get install texinfo -y
 sudo mkfs -v -t ext4 /dev/sda7
 sudo mkswap /dev/sda6
 export yantra=/mnt/yantra
-mkdir -pv $yantra
+sudo mkdir -pv $yantra
 sudo mkdir -pv $yantra    
 sudo mount -v -t ext4 /dev/sda7 $yantra
-/sbin/swapon -v /dev/sda6
 sudo /sbin/swapon -v /dev/sda6
 
 yantra=/mnt/yantra
