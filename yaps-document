@@ -55,7 +55,7 @@ fi
 
 ./BuildFileSystem-SystemD
 sudo chown -R $USER:$USER $yantra/ybuild $yantra/ysarchives/$LFSVERSION $yantra/ybpackages/$LFSVERSION
-chmod -R 755 $yantra/ysrchives/$LFSVERSION $yantra/ybpackages/$LFSVERSION
+chmod -R 755 $yantra/ysarchives/$LFSVERSION $yantra/ybpackages/$LFSVERSION
 mkdir  $yantra/ysarchives/$LFSVERSION/KERNEL
 cd $yantra/ysarchives/$LFSVERSION/KERNEL
 ln -sv ../SYSTEM/linux-$KERNELVERSION.tar.xz .
