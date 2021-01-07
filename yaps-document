@@ -60,8 +60,8 @@ mkdir  $yantra/ysarchives/$LFSVERSION/KERNEL
 cd $yantra/ysarchives/$LFSVERSION/KERNEL
 ln -sv ../SYSTEM/linux-$KERNELVERSION.tar.xz .
 cd $yantra/yinsource/admin/yinstal
-wget -c --no-check-certificate https://github.com/yantraos/yinstal/blob/master/yinstal.zip
-unzip yinstal.zip
+wget -c --no-check-certificate "https://github.com/yantraos/yinstal/blob/master/yinstal-master.zip"  -O yinstal-master.zip
+unzip yinstal-master.zip
 cd $yantra/yinscripts
 sudo  ./Chroot system
 cd /yinsource/admin/yinstal
