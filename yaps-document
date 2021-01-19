@@ -69,30 +69,3 @@ BOOTSTRAP=1 ./yinstal.ybuild install
 yaps --setup
 cd /yinsource/system/system-meta
 ./system-meta.ybuild install
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
