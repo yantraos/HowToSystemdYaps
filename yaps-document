@@ -16,14 +16,14 @@ sudo mount -v -t ext4 /dev/sda7 $yantra
 sudo /sbin/swapon -v /dev/sda6
 
 yantra=/mnt/yantra
-LFSVERSION=9.0
-SOURCEARCHIVES=/ysarchives/$LFSVERSION
-BUILTPACKAGES=/ybpackages/$LFSVERSION
+yversion=9.0
+SOURCEARCHIVES=/ysarchives/$yversion
+BUILTPACKAGES=/ybpackages/$yversion
 EXTFOLDER=
 KERNELVERSION=5.2.8
 USESYSTEMD=1
 export yantra
-export LFSVERSION
+export yversion
 export SOURCEARCHIVES
 export BUILTPACKAGES
 export EXTFOLDER
@@ -54,10 +54,10 @@ fi
 
 
 ./BuildFileSystem-SystemD
-sudo chown -R $USER:$USER $yantra/ybuild $yantra/ysarchives/$LFSVERSION $yantra/ybpackages/$LFSVERSION
-chmod -R 755 $yantra/ysarchives/$LFSVERSION $yantra/ybpackages/$LFSVERSION
-mkdir  $yantra/ysarchives/$LFSVERSION/KERNEL
-cd $yantra/ysarchives/$LFSVERSION/KERNEL
+sudo chown -R $USER:$USER $yantra/ybuild $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
+chmod -R 755 $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
+mkdir  $yantra/ysarchives/$yversion/KERNEL
+cd $yantra/ysarchives/$yversion/KERNEL
 ln -sv ../SYSTEM/linux-$KERNELVERSION.tar.xz .
 cd $yantra/yinsource/admin/yinstal
 wget -c --no-check-certificate "https://github.com/yantraos/yinstal/blob/master/yinstal-master.zip"  -O yinstal-master.zip
