@@ -1,0 +1,412 @@
+#How to install Yantra-9.0
+
+Host System Requirements for Yantra-9.0
+
+while install host system we need to create two more partions only with ext4 file system /dev/sda7 and /dev/sda6.
+
+Host system is ubuntu 18.05 install all dependencies as mentioned in version check list for version checklist please follow below link
+
+https://github.com/yantraos/version-check-yantra-9.0/blob/main/version-check.sh
+
+http://www.linuxfromscratch.org/lfs/view/9.0-systemd/chapter02/hostreqs.html
+
+./bash version-check.sh
+
+apt-get update -y
+
+apt-get install bison gawk m4 texinfo gcc g++ -y
+
+#Also make sure /bin/sh points to /bin/bash
+
+sudo rm /bin/sh
+sudo ln -s /bin/bash /bin/sh
+
+#also make sure /usr/bin/yacc should be a link to bison or small script that executes bison
+
+sudo rm /usr/bin/awk 
+sudo ln -s /usr/bin/gawk /usr/bin/awk
+
+1)
+#It will be assumed that your yantra partition is mounted on /mnt/yantra, using /dev/sda7 and /dev/sda6 as swap, alter as needed.
+#Use sudo where necessary to create links etc.
+
+mkfs -v -t ext4 /dev/sda7
+mkswap /dev/sda6
+export yantra=/mnt/yantra
+mkdir -pv $yantra
+mount -v -t ext4 /dev/sda7 $yantra
+/sbin/swapon -v /dev/sda6
+
+#If compiling on raspberian you need to install some extra files like so:
+
+
+#Get the build scripts and helper scripts from:
+#https://github.com/yantraos/ybuild
+#either via git clone or downloading the zip file and unpacking it.
+#you should place the ybuild and yinscripts folder in the root of what will be your new yantra eg /mnt/yantra/ybuild
+
+#Set some env vars to make it easier to copy and paste these instructions.
+#Folders should be pre created, change paths to suit,
+
+yantra=/mnt/yantra
+yversion=9.0
+SOURCEARCHIVES=/ysarchives/$yversion
+BUILTPACKAGES=/ybpackages/$yversion
+EXTFOLDER=
+KERNELVERSION=5.2.8
+USESYSTEMD=1
+
+export yantra
+export yversion
+export SOURCEARCHIVES
+export BUILTPACKAGES
+export EXTFOLDER
+export KERNELVERSION
+export USESYSTEMD
+###RECOMMENDED####
+
+#or cd into the mounted partition wher you intend to build yantra:
+#yantra should point to your mounted yantra partition ( eg yantra=/mnt/yantra).
+cd $yantra)
+[sudo] git clone https://github.com/yantraos/yinstal/blob/master/yinstal.zip
+
+Own the files:
+[sudo] chown -R $USER:$USER $yantra/ybuild
+[sudo] chown -R +x $yantra/ybuild
+[sudo] ln -sv ybuild/yinsource $yantra/yinsource
+[sudo] ln -sv ybuild/yinscripts $yantra/yinscripts
+
+3)
+#cd into the yinscripts folder
+cd yinscripts
+#Set up config files !!IMPORTANT!!
+#You can just press 'Return' to accept the default.
+#Run:
+[sudo] -E ysetup
+
+#To check config:
+./ShowSystemData
+
+4)
+#Run BuildTools script:
+./BuildTools-SystemD
+
+4.5)
+#Mount bind external folder if set and if not already mounted.
+. ./SystemData
+mkdir -vp ${yantra}/${SOURCEARCHIVES}||true  
+mkdir -vp ${yantra}/${BUILTPACKAGES}||true 
+if [ "X$EXTFOLDER" != "X" ];then
+	sudo mount --bind $EXTFOLDER/${BUILTPACKAGES} $yantra/${BUILTPACKAGES}
+	sudo mount --bind $EXTFOLDER/${SOURCEARCHIVES}$yantra/${SOURCEARCHIVES}
+fi
+
+5)
+#Run BuildFileSystem script:
+[sudo] ./BuildFileSystem-SystemD
+
+5.2)
+#You may/will have to re-own/set perms the various folders etc, so:
+[sudo] chown -R $USER:$USER $yantra/ybuild $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
+chmod -R 755 $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
+
+5.5)
+#Create a link from downloaded linux tarball to /ysarchives/$yversion/KERNE to prevent re-downloading source tarball.
+mkdir  $yantra/ysarchives/$yversion/KERNEL
+cd $yantra/ysarchives/$yversion/KERNEL
+ln -sv ../SYSTEM/linux-$KERNELVERSION.tar.xz .
+
+5.6)
+#get the package manager archive via the host system:
+cd $yantra/yinsource/admin/yinstal
+wget -c --no-check-certificate "https://git clone https://github.com/yantraos/yinstal/blob/master/yinstal.zip" -O yinstal.zip
+unzip yinstal.zip
+
+6)
+#Change back to $yantra/yinscripts folder.
+cd $yantra/yinscripts
+
+#If you are building over ssh you may want to start a screen session that you can come back to later.
+screen
+
+#Chroot into temporary system:
+[sudo] ./Chroot system
+
+cd /yinsource/system/bison
+./bison.ybuild
+
+7)
+#You should now be in the chroot
+#First install yinstal:
+cd /yinsource/admin/yinstal
+BOOTSTRAP=1 ./yinstal.ybuild install
+
+#As part of the ysetup script $yantra/root/.yaps.rc has been created to contain basic info needed by yaps, review and change if needed.
+#Set $yantra/etc/yaps.rc variables, make sure the SOURCEARCHIVES points to the same place as $SOURCEARCHIVES from #SystemData.local as that's where the main yantra system source files are, you can do this either from in the chroot environment or from the host with root permissions.
+#At this point wget/openssl is not installed so you will get a load of complaints from yaps, ignore them as yaps will be reinstalled later with the main system.
+
+#You should run yaps --setup to create the yaps.rc file ( in /etc ) 
+#Rc files are sourced from /etc/yaps.rc
+#yaps --setup can be run again later if you need/want to change source/build folders etc.
+#For building the main system you should probably set the configure options config files in /etc and log options.
+yaps --setup
+
+8)
+#Build main system:
+cd /yinsource/system/system-meta
+
+#ysetup will have created a symlink to your desired init type so use:
+./system-meta.ybuild install
+
+#Or if you have changed your mind you can install a different init system like so:
+
+#Use system-sysvinit-meta for standard sysvinit like so:
+./system-sysvinit-meta.ybuild install
+
+#Or use system-bbinit-meta.ybuild for a busy box init system ( non standard ) like so:
+./system-bbinit-meta.ybuild install
+
+#Or for ##experimental## custom init system use:
+./system-yantraInit-meta.ybuild install
+
+#Or for rpi sysvinit system use:
+./system-pi-sysvinit-meta.ybuild install
+
+Wait for script to complete:
+...
+Have coffee
+Walk the dog
+...
+
+9)
+#logout from temporary system:
+exit
+
+10)
+#Remove tools folder link from host and if you want to save tools archive for futre use move/copy the ${yantra}/tools-${yversion}.tar.gz (${yantra}/tools-${yversion}.tar.gz) somewhere safe:
+[sudo] rm /tools
+#Remove the tools folder from your yantra install disk:
+[sudo] rm -rf $yantra/tools
+
+11)
+#Re-enter the chroot ( this time and subsequent times don't use the 'system' argument to Chroot ):
+[sudo] ./Chroot
+
+cd /yinsource/system/bison
+./bison.ybuild
+
+12)
+#You MUST rebuild yaps after completeing the the basic system and removing the tools folder.
+#Use same process as 2)/7) EXCEPT do NOT use BOOTSTRAP=1
+#If you have set any vairiable in /etc/yaps.rc then reply 'R' ( without the quotes ) when asked about replacing files in /etc.
+#If you forgot to do the above bit just re-edit /etc/yaps.rc:
+
+cd /yinsource/admin/yinstal
+./yinstal.ybuild install
+
+#You may want to rerun yaps --setup
+
+13)
+#Configure and build the kernel:
+/yinsource/kernel
+
+#Optional copy the config for the running kernel, don't do this if running from bootcd
+#gunzip < /proc/config.gz > config-${KERNELVERSION}
+
+./kernel.ybuild install
+
+#You may prefer to manually copy all firmware modules from the host sytem from /lib/firmware to your new yantra system.
+#Or use the firmware build script to install all the latest firmware from https://git.kernel.org/ eg Whilst still in the kernel build folder:
+./firmware.ybuild install
+
+#Install any extra hardware/firmware packages you need ( you may have to boot into the 'real' system for this ).
+#eg usb wireless package:
+cd /yinsource/hware/RTL88x2BU-Linux-Driver
+./RTL88x2BU-Linux-Driver.ybuild install
+
+13.2)
+#You may want to set up wifi now so:
+cd /yinsource/net/wpa-supplicant/
+./wpa-supplicant.ybuild install
+#configure
+mkdir -vp /etc/wpa_supplicant/
+wpa_passphrase SSID SECRET_PASSWORD > /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+#Set the country code:
+sed -i '1s/^/country=GB\n/' /etc/wpa_supplicant/wpa_supplicant-wlan0.conf
+
+#Don't forget to set up wifi config.
+#A basic config is installed to /etc/systemd/network/10-wifi-static.network based on details entered earlier.
+#you may have to change some details depending on your hardware.
+#Change MACAddress, Name etc to suit.
+#you may have to run:
+systemctl enable wpa_supplicant@wlan0
+systemctl start wpa_supplicant@wlan0
+#manually from within the 'real' system.
+ 
+13.5)
+#Optional install of grub, see here:
+#http://www.linuxfromscratch.org/lfs/view/stable/chapter08/grub.html
+
+#The ysetupscript will install a basic grub.cfg file in ${yantra}/${BUILDSCRIPTS}/system/grub/ based on the details given to the script.
+#Check that the grub.cfg file is OK, make any changes and just copy it to /boot/grub, or manually do this:
+
+#assuming root device is /dev/sda and yantra system is on /dev/sda7:
+
+grub-install /dev/sda
+
+cat > /boot/grub/grub.cfg << "EOF"
+# Begin /boot/grub/grub.cfg
+set default=0
+set timeout=30
+
+insmod ext2
+set root=(hd0,1)
+
+menuentry "GNU/Linux, Yantra $yversion" {   
+	linux /boot/vmlinuz-$KERNELVERSION root=/dev/sda7 ro
+}
+
+EOF
+
+14)
+#Before building the X server now is a good time to quickly boot into your new system and make sure all is OK, you can then reboot back to the host and continue building in the chroot or build in the 'real' system, the choice is yours but this HowTo assumes all building is done in the chroot.
+#Build xorg:
+cd /yinsource/xorg/xorg-meta/
+./xorg-meta.ybuild install
+
+15)
+#Install documentation stuff
+#Also installs python via dependency
+#Loads of apps need these for building documentation so might as well install now.
+cd /yinsource/devel/gtk-doc
+./gtk-doc.ybuild install
+
+cd /yinsource/devel/doxygen
+./doxygen.ybuild install
+
+16)
+#Install cups and gtk.
+#Gtk2 has a 'soft' dependency on cups so best to buils cups first.
+cd /yinsource/print/cups
+./cups.ybuild install
+
+cd /yinsource/gtk/gtk
+./gtk.ybuild install
+
+#xsane frontends and xsane require gimp installed first to build the plugin
+cd /yinsource/desktop/gimp
+./gimp.ybuild install
+
+#rest of printing stuff
+cd /yinsource/print/printing-meta
+./printing-meta.ybuild install
+
+16.5)
+#multi media
+cd /yinsource/mm/mm-meta
+./mm-meta.ybuild install
+
+17)
+#Development stuff
+cd /yinsource/devel/development-meta
+./development-meta.ybuild install
+
+18)
+#The big one! build a complete desktop
+#this meta packagage includes other meta packages and takes a LOOOooooonnnnggggg time to build!
+#this is for an xfce4 desktop.
+cd /yinsource/desktop/desktop-meta
+./desktop-meta.ybuild install
+
+#Or for an ydesktop
+cd /yinsource/ydesktop/ydesktop-meta
+./ydesktop-meta.ybuild install
+
+19)
+#Extra odd stuff
+#Chromium
+cd /yinsource/desktop/chromium
+./chromium.ybuild install
+#falkon
+cd /yinsource/qt/falkon/
+./falkon.ybuild install
+
+#Cairo-dock-plugins pulls in cairo-dock as a dependency
+cd /yinsource/desktop/cairo-dock-plugins
+./cairo-dock-plugins.ybuild install
+
+#Qemu builds both static and dynamically linked versions
+/yinsource/hware/qemu
+./qemu.ybuild install
+
+#Seamonkey for web dev
+cd /yinsource/net/seamonkey
+./seamonkey.ybuild install
+
+#Icedtea-web BROKEN
+#cd /yinsource/net/icedtea-web
+#./icedtea-web.ybuild install
+#For pulse audio
+#cd /yinsource/net/icedtea-sound
+#./icedtea-sound.ybuild install
+
+#Samba
+cd /yinsource/net/samba
+./samba.ybuild install
+
+#Fuse and stuff
+/yinsource/net/sshfs
+./sshfs.ybuild install
+
+/yinsource/net/davfs2
+./davfs2.ybuild install
+
+/yinsource/net/curlftpfs
+./curlftpfs.ybuild install
+
+#System admin/security stuff
+cd /yinsource/admin/logrotate
+/logrotate.ybuild install
+
+cd /yinsource/admin/fcron
+./fcron.ybuild install
+
+cd /yinsource/net/iptables
+./iptables.ybuild install
+
+cd /yinsource/net/fail2ban
+./fail2ban.ybuild install
+
+
+#TODO
+cd /yinsource/qt/qt-creator
+./qt-creator.ybuild install
+
+#If you are building in chroot you will pobably have to rerun the postinstall script for this package AFTER booting to the 'real' system.
+cd /yinsource/admin/mariadb
+./mariadb.ybuild install
+
+#Odd stuff
+cd /yinsource/xorg/xbindkeys
+./xbindkeys.ybuild install
+
+cd /yinsource/net/libcddb
+./libcddb.ybuild install
+
+cd /yinsource/desktop/epdfview
+./epdfview.ybuild install
+
+#Conky is getting increasingly tied to gnome and difficult ( impossible! )to build.
+#cd //yinsource/desktop/conky
+#./conky.ybuild install
+
+#Try an alternative!
+cd /yinsource/desktop/gkrellm
+/gkrellm.ybuild install
+
+
+#Add users
+cd /yinsource/HelperScripts/
+./UsersAndGroups YOURUSERNAME
+
+
