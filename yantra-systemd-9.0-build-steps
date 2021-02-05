@@ -72,7 +72,7 @@ cd $yantra)
 
 Own the files:
 [sudo] chown -R $USER:$USER $yantra/ybuild
-[sudo] chown -R +x $yantra/ybuild
+[sudo] chmod -R +x $yantra/ybuild
 [sudo] ln -sv ybuild/yinsource $yantra/yinsource
 [sudo] ln -sv ybuild/yinscripts $yantra/yinscripts
 
