@@ -14,7 +14,7 @@ http://www.linuxfromscratch.org/lfs/view/9.0-systemd/chapter02/hostreqs.html
 
 apt-get update -y
 
-apt-get install bison gawk m4 texinfo gcc g++ -y
+apt-get install bison gawk m4 make texinfo gcc g++ -y
 
 #Also make sure /bin/sh points to /bin/bash
 
