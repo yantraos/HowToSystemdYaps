@@ -1,6 +1,6 @@
-#How to install Yantra-9.0
+#How to install Yantra-1.0
 
-Host System Requirements for Yantra-9.0
+Host System Requirements for Yantra-1.0
 
 while install host system we need to create two more partions only with ext4 file system /dev/sda7 and /dev/sda6.
 
@@ -49,7 +49,7 @@ mount -v -t ext4 /dev/sda7 $yantra
 #Folders should be pre created, change paths to suit,
 
 yantra=/mnt/yantra
-yversion=9.0
+yversion=1.0
 SOURCEARCHIVES=/ysarchives/$yversion
 BUILTPACKAGES=/ybpackages/$yversion
 EXTFOLDER=
