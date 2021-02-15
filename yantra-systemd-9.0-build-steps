@@ -132,6 +132,10 @@ screen
 #Chroot into temporary system:
 [sudo] ./Chroot system
 
+cd $yantra/yinsource/admin/yinstal
+make
+make install
+
 cd /yinsource/system/bison
 ./bison.ybuild
 
