@@ -78,11 +78,13 @@ Own the files:
 
 3)
 #cd into the yinscripts folder
+
 cd yinscripts
+
 #Set up config files !!IMPORTANT!!
 #You can just press 'Return' to accept the default.
 #Run:
-[sudo] -E ysetup
+[sudo] -E ./ysetup
 
 #To check config:
 ./ShowSystemData
