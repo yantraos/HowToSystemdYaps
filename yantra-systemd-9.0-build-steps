@@ -266,7 +266,7 @@ set default=0
 set timeout=30
 
 insmod ext2
-set root=(hd0,1)
+set root=(hd0,7)
 
 menuentry "GNU/Linux, Yantra $yversion" {   
 	linux /boot/vmlinuz-$KERNELVERSION root=/dev/sda7 ro
