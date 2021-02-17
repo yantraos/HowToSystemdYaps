@@ -30,12 +30,12 @@ sudo ln -s /usr/bin/gawk /usr/bin/awk
 #It will be assumed that your yantra partition is mounted on /mnt/yantra, using /dev/sda7 and /dev/sda6 as swap, alter as needed.
 #Use sudo where necessary to create links etc.
 
-mkfs -v -t ext4 /dev/sda7
-mkswap /dev/sda6
-export yantra=/mnt/yantra
-mkdir -pv $yantra
-mount -v -t ext4 /dev/sda7 $yantra
-/sbin/swapon -v /dev/sda6
+sudo mkfs -v -t ext4 /dev/sda7
+sudo mkswap /dev/sda6
+sudo export yantra=/mnt/yantra
+sudo mkdir -pv $yantra
+sudo mount -v -t ext4 /dev/sda7 $yantra
+sudo /sbin/swapon -v /dev/sda6
 
 #If compiling on raspberian you need to install some extra files like so:
 
@@ -69,6 +69,7 @@ export USESYSTEMD
 #yantra should point to your mounted yantra partition ( eg yantra=/mnt/yantra).
 cd $yantra)
 [sudo] git clone https://github.com/yantraos/yinstal/blob/master/yinstal.zip
+[sudo] wget http://35.154.131.43/ysarchives/1.0/ADMIN/yinstal-master.zip
 
 Own the files:
 [sudo] chown -R $USER:$USER $yantra/ybuild
@@ -110,7 +111,7 @@ fi
 5.2)
 #You may/will have to re-own/set perms the various folders etc, so:
 [sudo] chown -R $USER:$USER $yantra/ybuild $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
-chmod -R 755 $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
+[sudo] chmod -R 755 $yantra/ysarchives/$yversion $yantra/ybpackages/$yversion
 
 5.5)
 #Create a link from downloaded linux tarball to /ysarchives/$yversion/KERNE to prevent re-downloading source tarball.
