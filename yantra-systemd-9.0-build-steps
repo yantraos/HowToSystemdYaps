@@ -67,7 +67,9 @@ export USESYSTEMD
 
 #or cd into the mounted partition wher you intend to build yantra:
 #yantra should point to your mounted yantra partition ( eg yantra=/mnt/yantra).
-cd $yantra)
+cd $yantra
+[sudo] https://github.com/yantraos/ybuild-fifth-stage.git
+sudo mv ybuild-fifth-stage ybuild
 [sudo] git clone https://github.com/yantraos/yinstal/blob/master/yinstal.zip
 [sudo] wget http://35.154.131.43/ysarchives/1.0/ADMIN/yinstal-master.zip
 
