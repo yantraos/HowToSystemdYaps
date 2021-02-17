@@ -70,8 +70,7 @@ export USESYSTEMD
 cd $yantra
 [sudo] git clone https://github.com/yantraos/ybuild-fifth-stage.git
 sudo mv ybuild-fifth-stage ybuild
-[sudo] git clone https://github.com/yantraos/yinstal/blob/master/yinstal.zip
-[sudo] wget http://35.154.131.43/ysarchives/1.0/ADMIN/yinstal-master.zip
+
 
 Own the files:
 [sudo] chown -R $USER:$USER $yantra/ybuild
@@ -136,7 +135,8 @@ screen
 
 #Chroot into temporary system:
 [sudo] ./Chroot system
-
+[sudo] git clone https://github.com/yantraos/yinstal/blob/master/yinstal.zip
+[sudo] wget http://35.154.131.43/ysarchives/1.0/ADMIN/yinstal-master.zip
 cd $yantra/yinsource/admin/yinstal
 make
 make install
