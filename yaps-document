@@ -7,6 +7,8 @@ sudo rm /usr/bin/awk
 sudo ln -s /usr/bin/gawk /usr/bin/awk
 sudo apt-get install gcc g++ make -y
 sudo apt-get install texinfo -y
+sudo apt-get install libssl-dev -y
+sudo apt-get install pkg-config -y
 sudo mkfs -v -t ext4 /dev/sda7
 sudo mkswap /dev/sda6
 export yantra=/mnt/yantra
